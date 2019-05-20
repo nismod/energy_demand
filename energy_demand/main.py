@@ -252,6 +252,9 @@ if __name__ == "__main__":
         # Add all areas with no floor area data
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
+    else:
+        #TODO READ IN RESIDENTIAL AND NON RESIDENTIAL FLOOR AREA, Service_buidling
+        pass
 
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("-----------------------------------------------")

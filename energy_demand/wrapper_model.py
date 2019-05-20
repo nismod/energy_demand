@@ -133,9 +133,11 @@ def load_data_before_simulation(
         # ------------------------------------------------
         # Load floor area directly from Newcastle
         # ------------------------------------------------
-        #rs_floorarea = defaultdict(dict)
-        #ss_floorarea = defaultdict(dict)
-        pass
+        data['scenario_data']['floor_area']['rs_floorarea'] = {}
+        data['scenario_data']['floor_area']['rs_floorarea'] = data['scenario_data']['rs_floorarea']
+        data['scenario_data']['floor_area']['ss_floorarea'] = data['scenario_data']['ss_floorarea']
+        data['scenario_data']['service_building_count'][data['assumptions'].base_yr] = {}
+        #pass
 
     return data
 

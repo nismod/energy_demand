@@ -437,15 +437,23 @@ def ss_disaggr(
         for sector in sectors:
 
             # Sector specific ino
-            reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+            try:
+                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+            except IndexError: 
+                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region] # no sector specific data available
 
             try:
                 nr_sector_cnt_building = lu_building_cnt[sector]
-                reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
+                try:
+                    reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
+                except IndexError:
+                    print("service_building_count")
+                    print(service_building_count)
+                    reg_sector_building_cnt = service_building_count[region] # no sector specific data available
+
                 tot_building_cnt[sector] += reg_sector_building_cnt
             except KeyError:
-                #logging.debug("No building data for region {}".format(region))
-                pass
+                pass #logging.debug("No building data for region {}".format(region))
 
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area
@@ -490,9 +498,12 @@ def ss_disaggr(
                         reg_diasg_factor = p_pop
 
                 elif crit_full_disagg:
-
-                    reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
+                    
+                    try:
+                        reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+                    except IndexError:
+                        reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region]
+        
                     # ----
                     # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----

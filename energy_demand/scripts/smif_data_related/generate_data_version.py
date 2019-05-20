@@ -175,4 +175,4 @@ if __name__ == '__main__':
     python ../generate_data_version.py v_6_1 C:/path_to_data
     """
     # Map command line arguments to function arguments.
-    package_data('v0.9.8', 'C:/Users/cenv0553/nismod2/data/energy_demand')
+    package_data('v0.9.9', 'C:/Users/cenv0553/nismod2/data/energy_demand')

@@ -6,7 +6,6 @@ import math
 import copy
 import numpy as np
 
-from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
@@ -122,7 +121,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.debug("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
             # -----------------------------
@@ -215,7 +214,6 @@ class Enduse(object):
 
                     # Demand management for non-technology enduse
                     self.fuel_yh = load_shifting(
-                        enduse,
                         fuel_yh,
                         mode_constrained=False,
                         param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
@@ -286,16 +284,6 @@ class Enduse(object):
                     fueltypes,
                     mode_constrained)
 
-                # Delete all technologies with no fuel assigned
-                # This would speed up the calculations and use less memory
-                '''for tech, fuel_tech in fuel_tech_y.items():
-                    if np.sum(fuel_tech) == 0:
-                        self.enduse_techs.remove(tech)'''
-                
-                ##for i in fuel_tech_y.values():
-                ##    assert not testing_functions.test_if_minus_value_in_array(i)
-                ##assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
-
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -323,7 +311,6 @@ class Enduse(object):
                             self.techs_fuel_yh = fuel_yh
                         else:
                             self.techs_fuel_yh = load_shifting_multiple_tech(
-                                enduse,
                                 fueltypes,
                                 self.enduse_techs,
                                 assumptions.technologies,
@@ -335,7 +322,6 @@ class Enduse(object):
                             ##    assert not testing_functions.test_if_minus_value_in_array(i)
                     else:
                         self.fuel_yh = load_shifting(
-                            enduse,
                             fuel_yh,
                             mode_constrained=False,
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
@@ -345,7 +331,6 @@ class Enduse(object):
                         ##    raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 
 def load_shifting_multiple_tech(
-        enduse,
         fueltypes,
         enduse_techs,
         technologies,
@@ -376,7 +361,6 @@ def load_shifting_multiple_tech(
 
             # Shift demand for enduse (summed demand of technologies)
             sum_all_techs_shifted = load_shifting(
-                enduse,
                 sum_all_techs,
                 mode_constrained=True,
                 param_lf_improved_cy=param_lf_improved_cy,
@@ -404,7 +388,7 @@ def load_shifting_multiple_tech(
 
             for tech in technologies_fueltype:
 
-                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760)) 
+                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760))
                 sum_all_techs_8760 = sum_all_techs.reshape(8760)
 
                 # Calculate share of technology specific demand to overall enduse demand per hour before shift
@@ -435,7 +419,6 @@ def load_shifting_multiple_tech(
     return fuel_tech_shifted
 
 def load_shifting(
-        enduse,
         fuel_yh,
         mode_constrained,
         param_lf_improved_cy,
@@ -447,7 +430,6 @@ def load_shifting(
 
     Arguments
     ----------
-
     fuel_yh : array
         Fuel per hours
     mode_constrained : bool
@@ -1168,27 +1150,31 @@ def apply_scenario_drivers(
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 
-                    #logging.info("gva  {}   {}".format(by_driver_data, cy_driver_data))
-
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
-                #logging.info("pop  {}   {}".format(population[base_yr][region], population[curr_yr][region]))
 
             # Multiply drivers
             by_driver *= by_driver_data
             cy_driver *= cy_driver_data
 
-            # Testing
             if math.isnan(by_driver_data) or math.isnan(cy_driver_data):
                 raise Exception("Scenario driver error")
 
-        # Calculate scenario driver factor
         try:
             factor_driver = cy_driver / by_driver
         except ZeroDivisionError:
             factor_driver = 1
+        if math.isnan(factor_driver):
+            if cy_driver == 0 and by_driver != 0:
+                factor_driver = 0
+            else:
+                factor_driver = 1
+            #raise Exception("Scenario driver error : " + str(factor_driver))
+        else:
+            factor_driver = 1
 
+        # Calculate scenario driver factor
         fuel_y = fuel_y * factor_driver
     else:
         #Scenario driver calculation based on dwelling stock
@@ -1206,9 +1192,12 @@ def apply_scenario_drivers(
             except ZeroDivisionError:
                 factor_driver = 1
 
-            # Testing
             if math.isnan(factor_driver):
-                raise Exception("Scenario driver error")
+                if cy_driver == 0 and by_driver != 0:
+                    factor_driver = 0
+                else:
+                    factor_driver = 1
+                #raise Exception("Scenario driver error")
 
             fuel_y = fuel_y * factor_driver
         else:
