@@ -83,7 +83,7 @@ if __name__ == "__main__":
     if os.path.isfile(sys.argv[1]):
         path_config  = sys.argv[1]
     else:
-        raise Exception("The defined .ini file does not exist_ {}".format(sys.argv[1]))
+        raise Exception("The defined .ini file does not exist: {}".format(sys.argv[1]))
     config = data_loader.read_config_file(path_config)
 
     data = {}
@@ -114,20 +114,21 @@ if __name__ == "__main__":
     if config['CRITERIA']['cluster_calc']:
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
-        path_weather_data = "C:/Users/cenv0553/ED/data/scenarios/climate"
         path_weather_data = "C:/Users/cenv0553/nismod2/data/energy_demand/scenarios"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
+    '''if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c'
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c'
-    local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #TODO REMOVE SCRAP
+    '''
+    local_scenario = 'pop-baseline16_econ-c16_fuel-c16'
+
     # --- Paths
     path_strategy_vars = os.path.join(config['DATA_PATHS']['path_strategy_vars'], name_config_path)
     name_region_set = os.path.join(config['PATHS']['path_local_data'], 'region_definitions', "lad_2016_uk_simplified.shp")
-    name_population_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
-    name_gva_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
-    name_gva_dataset_per_head = os.path.join(config['PATHS']['path_local_data'],'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
+    name_population_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', '{}/population__lad.csv'.format(local_scenario))
+    name_gva_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
+    name_gva_dataset_per_head = os.path.join(config['PATHS']['path_local_data'],'scenarios', 'MISTRAL_pop_gva', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
     # --------------------
     # Create scenario path

@@ -131,7 +131,7 @@ def load_data_before_simulation(
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
     else:
         # ------------------------------------------------
-        # Load floor area directly from Newcastle
+        # Load floor area directly from scenario
         # ------------------------------------------------
         data['scenario_data']['floor_area']['rs_floorarea'] = {}
         data['scenario_data']['floor_area']['rs_floorarea'] = data['scenario_data']['rs_floorarea']
