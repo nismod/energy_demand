@@ -3,8 +3,7 @@
 import math
 import numpy as np
 
-from scipy.interpolate import interp1d
-from scipy.interpolate import spline
+from scipy.interpolate import interp1d, splrep, splev
 
 from energy_demand.technologies import diffusion_technologies
 #matplotlib.use('Agg') # Used to make it work in linux
@@ -124,22 +123,16 @@ def smooth_line(
         input_y_line_data,
         nr_line_points=1000
     ):
-    """https://stackoverflow.com/questions/5283649/plot-smooth-line-with-pyplot
+    """https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.splrep.html#scipy.interpolate.splrep
 
     nr_line_points : int
         represents number of points to make between input_line_data.min and T.max
     """
-    input_x_line_data = np.array(input_x_line_data)
-    input_y_line_data = np.array(input_y_line_data)
+    x = np.array(input_x_line_data)
+    y = np.array(input_y_line_data)
 
-    smooth_x_line_data = np.linspace(
-        input_x_line_data.min(),
-        input_x_line_data.max(),
-        nr_line_points) 
+    spl = splrep(x, y)
+    x2 = np.linspace(x.min(), x.max(), nr_line_points) 
+    y2 = splev(x2, spl)
 
-    smooth_y_line_data = spline(
-        input_x_line_data,
-        input_y_line_data,
-        smooth_x_line_data)
-
-    return smooth_x_line_data, smooth_y_line_data
+    return x2, y2
