@@ -37,7 +37,7 @@ def run(
     fig = plt.figure(
         figsize=basic_plot_functions.cm2inch(14, 25))
 
-    ax = fig.add_subplot(nrows=4, ncols=2)
+    # ax = fig.add_subplot(nrows=4, ncols=2)
 
     plot_nr = 0
     row = -1
