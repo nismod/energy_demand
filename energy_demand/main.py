@@ -15,6 +15,8 @@ import logging
 from collections import defaultdict
 import pandas as pd
 
+sys.path.insert(0, "C:\HIRE\energy_demand")
+
 from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
 from energy_demand.assumptions import strategy_vars_def, general_assumptions
@@ -22,7 +24,7 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
-
+raise Exception("TTes")
 def energy_demand_model(
         regions,
         data,

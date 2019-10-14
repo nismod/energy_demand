@@ -4,7 +4,7 @@ cartopy
 pyyaml
 matplotlib
 haversine>=2
-scipy
+scipy=1.2.1
 isoweek
 pyinstrument
 pyshp
