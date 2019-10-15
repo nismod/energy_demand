@@ -5,7 +5,7 @@ from multiprocessing import Pool, cpu_count
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
-    run_name = 'l_min' #h_min, h_max, l_max, l_min
+    run_name = 'h_max' #h_min, h_max, l_max, l_min
     name_config_path = run_name
 
     run_smif = False 
@@ -17,6 +17,7 @@ def my_function(simulation_number):
     weather_realisation = all_weather_reations[simulation_number]
 
     path_to_ini_file = "C:/HIRE/energy_demand/local_run_config_file.ini"
+    #path_to_ini_file = "J:/Sven/HIRE/energy_demand/local_run_config_file_workstation.ini"
 
     # Make run name_specifiv
     run_name = "{}_{}".format(run_name, simulation_number)

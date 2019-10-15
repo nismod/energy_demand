@@ -97,7 +97,7 @@ if __name__ == "__main__":
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    same_year_crit = False # If true, always weather data for 2020 is used.
+    same_year_crit = True # If true, always weather data for 2020 is used.
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")

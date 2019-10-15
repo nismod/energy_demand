@@ -401,8 +401,8 @@ def main(
     # -------------
     fig_3_plot_over_time.bar_plot_different_weather_scenarios(
         data=multi_sim_results,
-        weather_scenario_same_weather='_same_weather_test',
-        weather_scenario_different='results',
+        weather_scenario_same_weather='_result_same_weather',
+        weather_scenario_different='_result_different_weather',
         fig_name="weather_comparison_2020_scenario.pdf",
         result_path=path_multiple_simulations)
     

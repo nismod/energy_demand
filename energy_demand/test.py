@@ -14,17 +14,70 @@ def set_box_color(bp, color):
 
 plt.figure()
 
-bpl = plt.boxplot(data_a, positions=np.array(xrange(len(data_a)))*2.0-0.4, sym='', widths=0.6)
-bpr = plt.boxplot(data_b, positions=np.array(xrange(len(data_b)))*2.0+0.4, sym='', widths=0.6)
-set_box_color(bpl, '#D7191C') # colors are from http://colorbrewer2.org/
-set_box_color(bpr, '#2C7BB6')
+fig = plt.figure() #width, height
+ax = fig.add_subplot(1, 1, 1)
 
+
+'''
+boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+capprops=dict(linewidth=0.6, color=color, alpha=1.0),
+whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+medianprops=dict(linewidth=0, color=color, alpha=1.0)'''
+color_1 = '#377eb8' # orange
+color_2 = '#ff7f00' # blue
+
+bpl = ax.boxplot(
+    data_a,
+    positions=np.array(range(len(data_a)))*2.0-0.4,
+    sym='',
+    widths=0.6, 
+    whis='range',
+    patch_artist=True ,
+    boxprops=dict(linewidth=0.6, linestyle='-', color='black', facecolor=color_1, alpha=1.0),
+    meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+    capprops=dict(linewidth=0.6, color=color_1, alpha=1.0),
+    whiskerprops=dict(linewidth=1, color=color_1, markeredgecolor=color_1, alpha=1.0),
+    flierprops=dict(linewidth=0.6, color=color_1, markeredgecolor=color_1, alpha=1.0),
+    medianprops=dict(linewidth=0, color=color_1, alpha=1.0)
+    )
+
+for box in bpl['boxes']:
+    box.set(hatch = '//') # change hatch
+
+bpr = ax.boxplot(
+    data_b,
+    positions=np.array(range(len(data_b)))*2.0+0.4,
+    sym='',
+    widths=0.6, 
+    whis='range',
+    patch_artist=True,
+    boxprops=dict(linewidth=0.6, linestyle='-', color='black', facecolor=color_2, alpha=1.0),
+    meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+    capprops=dict(linewidth=0.6, color=color_2, alpha=1.0),
+    whiskerprops=dict(linewidth=1, color=color_2, markeredgecolor=color_2, alpha=1.0),
+    flierprops=dict(linewidth=0.6, color=color_2, markeredgecolor=color_2, alpha=1.0),
+    medianprops=dict(linewidth=0, color=color_2, alpha=1.0)
+    )
+
+for box in bpr['boxes']:
+    box.set(hatch = '..') # change hatch
+
+
+'''def set_box_color(bp, color):
+    plt.setp(bp['boxes'], color=color)
+    plt.setp(bp['whiskers'], color=color)
+    plt.setp(bp['caps'], color=color)
+    plt.setp(bp['medians'], color=color)'''
+
+#set_box_color(bpl, '#377eb8') 
+#set_box_color(bpr, '#ff7f00')
 # draw temporary red and blue lines and use them to create a legend
-plt.plot([], c='#D7191C', label='Apples')
-plt.plot([], c='#2C7BB6', label='Oranges')
+
 plt.legend()
 
-plt.xticks(xrange(0, len(ticks) * 2, 2), ticks)
+plt.xticks(range(0, len(ticks) * 2, 2), ticks)
 plt.xlim(-2, len(ticks)*2)
 plt.ylim(0, 8)
 plt.tight_layout()

@@ -739,26 +739,45 @@ def bar_plot_different_weather_scenarios(
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
+    color_1 = '#377eb8' # orange
+    color_2 = '#ff7f00' # blue
 
-    bpl = ax.boxplot(data_boxplot_same, positions=np.array(range(len(scenarios)))*2.0-0.4, sym='', widths=0.6, whis='range')
-    bpr = ax.boxplot(data_boxplot_diff, positions=np.array(range(len(scenarios)))*2.0+0.4, sym='', widths=0.6, whis='range')
-
-    '''# ---------------
-    # Plot Boxplot with min and max value for year 2050
-    # ---------------
-    ax.boxplot(
-        national_peak_boxplot_data,
-        positions=[1,2,3,4],
-        widths=len(sim_yrs) * [1],
-        whis='range', #provide min and maximum
+    bpl = ax.boxplot(
+        data_boxplot_same,
+        positions=np.array(range(len(data_boxplot_same)))*2.0-0.4,
+        sym='',
+        widths=0.6, 
+        whis='range',
         patch_artist=True ,
-        boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+        boxprops=dict(linewidth=0.6, linestyle='-', color='black', facecolor=color_1, alpha=1.0),
         meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
-        capprops=dict(linewidth=0.6, color=color, alpha=1.0),
-        whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
-        flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
-        medianprops=dict(linewidth=0, color=color, alpha=1.0))'''
-        
+        capprops=dict(linewidth=0.6, color=color_1, alpha=1.0),
+        whiskerprops=dict(linewidth=1, color=color_1, markeredgecolor=color_1, alpha=1.0),
+        flierprops=dict(linewidth=0.6, color=color_1, markeredgecolor=color_1, alpha=1.0),
+        medianprops=dict(linewidth=0, color=color_1, alpha=1.0)
+        )
+
+    for box in bpl['boxes']:
+        box.set(hatch = '//') # change hatch
+
+    bpr = ax.boxplot(
+        data_boxplot_diff,
+        positions=np.array(range(len(data_boxplot_diff)))*2.0+0.4,
+        sym='',
+        widths=0.6, 
+        whis='range',
+        patch_artist=True,
+        boxprops=dict(linewidth=0.6, linestyle='-', color='black', facecolor=color_2, alpha=1.0),
+        meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+        capprops=dict(linewidth=0.6, color=color_2, alpha=1.0),
+        whiskerprops=dict(linewidth=1, color=color_2, markeredgecolor=color_2, alpha=1.0),
+        flierprops=dict(linewidth=0.6, color=color_2, markeredgecolor=color_2, alpha=1.0),
+        medianprops=dict(linewidth=0, color=color_2, alpha=1.0)
+        )
+
+    for box in bpr['boxes']:
+        box.set(hatch = '..') # change hatch
+            
     plt.xticks(range(0, len(scenarios) * 2, 2), scenarios)
 
     plt.savefig(os.path.join(result_path, fig_name))
