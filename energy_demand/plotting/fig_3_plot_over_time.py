@@ -490,7 +490,7 @@ def fueltypes_over_time(
     statistics_to_print = []
 
     fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
+        figsize=basic_plot_functions.cm2inch(6, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
     '''colors = {
@@ -746,6 +746,8 @@ def bar_plot_different_weather_scenarios(
 
     https://stackoverflow.com/questions/16592222/matplotlib-group-boxplots
     """
+    statistics_to_print = []
+
     data_weather_same = data[weather_scenario_same_weather]
     data_weather_diff = data[weather_scenario_different]
 
@@ -764,6 +766,16 @@ def bar_plot_different_weather_scenarios(
 
         color = colors[data_same['scenario_name']]
 
+    # STats to print out
+    statistics_to_print.append("========== Same Weather ==============")
+    statistics_to_print.append(np.array(data_same['national_peak'][2050]))
+    statistics_to_print.append("Diff: ".format(max(np.array(data_same['national_peak'][2050])) - min(np.array(data_same['national_peak'][2050]))))
+    statistics_to_print.append("Mean: ".format(np.mean(data_same['national_peak'][2050])))
+
+    statistics_to_print.append("========== Different Weather ==============")
+    statistics_to_print.append(np.array(data_diff['national_peak'][2050]))
+    statistics_to_print.append("Diff: ".format(max(np.array(data_diff['national_peak'][2050])) - min(np.array(data_diff['national_peak'][2050]))))
+    statistics_to_print.append("Mean: ".format(np.mean(data_diff['national_peak'][2050])))
 
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
@@ -787,7 +799,7 @@ def bar_plot_different_weather_scenarios(
         )
 
     for box in bpl['boxes']:
-        box.set(hatch = '//') # change hatch
+        box.set(hatch = '///') # change hatch
 
     bpr = ax.boxplot(
         data_boxplot_diff,
@@ -805,7 +817,7 @@ def bar_plot_different_weather_scenarios(
         )
 
     for box in bpr['boxes']:
-        box.set(hatch = '..') # change hatch
+        box.set(hatch = '...') # change hatch
             
     plt.xticks(range(0, len(scenarios) * 2, 2), scenarios)
 
@@ -817,6 +829,11 @@ def bar_plot_different_weather_scenarios(
         frameon=False)
 
     plt.savefig(os.path.join(result_path, fig_name))
-    return
+
+    # Write info to txt
+    write_data.write_list_to_txt(
+        os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
+        statistics_to_print)
+
 
 
