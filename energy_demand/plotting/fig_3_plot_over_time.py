@@ -672,6 +672,14 @@ def fueltypes_over_time(
     ax.set_yticks(major_ticks)
     ax.set_yticks(minor_ticks, minor=True)
 
+    # X-LAbel ticks
+    major_ticks = [2020, 2030, 2040, 2050]
+    minor_ticks = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+
+    ax.set_xticks(major_ticks)
+    ax.set_xticks(minor_ticks, minor=True)
+    ax.set_xticklabels(major_ticks)
+
     # And a corresponding grid
     ax.grid(
         which='both',
@@ -769,13 +777,13 @@ def bar_plot_different_weather_scenarios(
     # STats to print out
     statistics_to_print.append("========== Same Weather ==============")
     statistics_to_print.append(np.array(data_same['national_peak'][2050]))
-    statistics_to_print.append("Diff: ".format(max(np.array(data_same['national_peak'][2050])) - min(np.array(data_same['national_peak'][2050]))))
-    statistics_to_print.append("Mean: ".format(np.mean(data_same['national_peak'][2050])))
+    statistics_to_print.append("Diff: {}".format(max(np.array(data_same['national_peak'][2050])) - min(np.array(data_same['national_peak'][2050]))))
+    statistics_to_print.append("Mean: {}".format(np.mean(data_same['national_peak'][2050])))
 
     statistics_to_print.append("========== Different Weather ==============")
     statistics_to_print.append(np.array(data_diff['national_peak'][2050]))
-    statistics_to_print.append("Diff: ".format(max(np.array(data_diff['national_peak'][2050])) - min(np.array(data_diff['national_peak'][2050]))))
-    statistics_to_print.append("Mean: ".format(np.mean(data_diff['national_peak'][2050])))
+    statistics_to_print.append("Diff: {}".format(max(np.array(data_diff['national_peak'][2050])) - min(np.array(data_diff['national_peak'][2050]))))
+    statistics_to_print.append("Mean: {}".format(np.mean(data_diff['national_peak'][2050])))
 
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
