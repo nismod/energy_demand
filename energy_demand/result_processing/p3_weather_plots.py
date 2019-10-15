@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 sys.path.insert(0, "C:\HIRE\energy_demand")
 
+import matplotlib.pyplot as plt
+
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
@@ -74,6 +76,9 @@ def main(
             '.pdf',
             '.txt',
             '.ini']
+
+        # Simulation Result Folders simulations
+
 
         all_scenarios_incl_ignored = os.listdir(scenarios_path)
         all_scenarios = []
@@ -313,7 +318,8 @@ def main(
         except:
             raise Exception("FAILED")
             pass
-
+        
+        raise Exception("JJJ")
         # ------------------------------
         # Plot heating peak change over time for each scenario including weather variability
         # ------------------------------
@@ -347,6 +353,10 @@ def main(
         except:
             raise Exception("FAILED")
             pass
+        
+        # ------------------------------
+        # Plot Comparison of Weather scenario and same weather for 2020
+        # ------------------------------
 
     ## ------------------------------
     ## Plotting x-chart

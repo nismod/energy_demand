@@ -886,7 +886,7 @@ def load_temp_data(
         sim_yrs,
         weather_realisation,
         path_weather_data,
-        same_base_year_weather=False,
+        same_year=False,
         crit_temp_min_max=False,
         load_np=False,
         load_parquet=False,
@@ -900,7 +900,7 @@ def load_temp_data(
         Local local_paths
     weather_yr_scenario : list
         Years to use temperatures
-    same_base_year_weather : bool
+    same_year : bool
         Criteria whether the base year weather is used for full simulation
 
     Returns
@@ -953,15 +953,21 @@ def load_temp_data(
             df_full_data = pd.read_csv(path_temp_data)
 
         for sim_yr in sim_yrs:
-
-            if same_base_year_weather:
-                sim_yr = sim_yrs[0]
+            
+            year_defined = sim_yr
+            if same_year:
+                if sim_yr == 2015:
+                    pass
+                else:
+                    year_defined = 2020
+                    #sim_yr = same_year_defined #TODO: Adopted that 2020 is default
+                    #sim_yr = sim_yrs[0]
             else:
                 pass
             print("    ... year: {}".format(sim_yr), flush=True)
 
             # Select all station values
-            df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
+            df_timestep = df_full_data.loc[df_full_data['timestep'] == year_defined]
 
             for station_id in weather_stations_with_data:
 

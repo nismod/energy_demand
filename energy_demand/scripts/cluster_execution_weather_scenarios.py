@@ -39,10 +39,11 @@ def my_function(simulation_number):
 
 # Simulation number
 #simulation_number = range(0, 101, 1)
-simulation_number = range(0, 1, 1)
+simulation_number = range(0, 5, 1)
+nr_of_pools = 3 #int(cpu_count()/2)
 
 if __name__ == "__main__":
-    with Pool(int(cpu_count()/2)) as pool:
+    with Pool(nr_of_pools) as pool:
         pool.map(
             my_function,
             simulation_number,

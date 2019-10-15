@@ -166,6 +166,27 @@ def scenario_over_time(
             except:
                 sim_yrs_smoothed = sim_yrs
 
+
+        # ---------------
+        # Plot Boxplot with min and max value
+        # ---------------
+        national_peak_boxplot_data = [np.array(national_peak[i]) for i in sim_yrs]
+
+        ax.boxplot(
+            national_peak_boxplot_data,
+            positions=sim_yrs,
+            widths=len(sim_yrs) * [1],
+            whis='range', #provide min and maximum
+            patch_artist=True ,
+            boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+            meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+            capprops=dict(linewidth=0.6, color=color, alpha=1.0),
+            whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+            flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+            medianprops=dict(linewidth=0, color=color, alpha=1.0),
+            zorder=2
+            )
+
         # -----------------------
         # Plot lines
         # ------------------------
@@ -175,6 +196,7 @@ def scenario_over_time(
             zorder=1,
             color=color)
 
+        
         # ------------------------
         # Plot markers
         # ------------------------
@@ -186,11 +208,11 @@ def scenario_over_time(
                 marker=marker,
                 edgecolor='black',
                 linewidth=0.5,
-                zorder=2,
-                s=15,
+                zorder=3,
+                s=6,
                 clip_on=False) #do not clip points on axis
 
-        # ------------------
+        '''# ------------------
         # Start with uncertainty one model step later (=> 2020)
         # ------------------
         start_yr_uncertainty = 2020
@@ -234,6 +256,9 @@ def scenario_over_time(
             list(two_std_line_neg),
             alpha=0.25,
             facecolor=color)
+        
+        '''
+        
 
     plt.xlim(2015, 2050)
     plt.ylim(0)
@@ -276,7 +301,7 @@ def scenario_over_time(
             legend,
             os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
         legend.remove()
-
+    
     # --------
     # Labeling
     # --------

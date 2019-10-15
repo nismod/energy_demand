@@ -97,6 +97,7 @@ if __name__ == "__main__":
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2030, 2050]
+    same_year_crit = True # If true, always weather data for 2020 is used.
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -280,7 +281,7 @@ if __name__ == "__main__":
         sim_yrs=sim_yrs,
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
-        same_base_year_weather=False,
+        same_year=same_year_crit, #
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         load_np=False,
         load_parquet=False,
