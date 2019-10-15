@@ -369,9 +369,9 @@ def plot_std_dev_vs_contribution(
         diff_2020_2050_reg_share_std = ((100 / std_2020) * std_2050) - 100
         
         if scenario not in ['h_min', 'l_min']:
-            plt.ylabel("Δ standard deviation [%]", fontsize=10)
+            plt.ylabel("Δ standard deviation across all weather simulations [%]", fontsize=10)
         if scenario not in ['h_max', 'h_min']:
-            plt.xlabel("Δ mean of total peak [%]", fontsize=10)
+            plt.xlabel("Δ mean of total peak across all weather simulations [%]", fontsize=10)
 
         regions = diff_2020_2050_reg_share.index
         for region in regions.values:
@@ -704,3 +704,64 @@ def fueltypes_over_time(
     write_data.write_list_to_txt(
         os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
         statistics_to_print)
+
+def bar_plot_different_weather_scenarios(
+        data,
+        weather_scenario_same_weather,
+        weather_scenario_different,
+        fig_name,
+        result_path,
+        ):
+    """NEWEST PLOT: plot bar charts with demand for different wetaher sceanrios
+
+    https://stackoverflow.com/questions/16592222/matplotlib-group-boxplots
+    """
+    data_weather_same = data[weather_scenario_same_weather]
+    data_weather_diff = data[weather_scenario_different]
+
+    data_boxplot_same = []
+    data_boxplot_diff = []
+
+    scenarios = []
+    for data_same, data_diff in zip(data_weather_same, data_weather_diff):
+        
+        scenarios.append(data_same['scenario_name'])
+        if data_same['scenario_name'] != data_diff['scenario_name']:
+            raise Excpetion("WHATS THIS")
+
+        data_boxplot_same.append(np.array(data_same['national_peak'][2050]))
+        data_boxplot_diff.append(np.array(data_diff['national_peak'][2050]))
+        
+        
+        color = colors[data_same['scenario_name']]
+
+
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
+    ax = fig.add_subplot(1, 1, 1)
+
+
+    bpl = ax.boxplot(data_boxplot_same, positions=np.array(range(len(scenarios)))*2.0-0.4, sym='', widths=0.6, whis='range')
+    bpr = ax.boxplot(data_boxplot_diff, positions=np.array(range(len(scenarios)))*2.0+0.4, sym='', widths=0.6, whis='range')
+
+    '''# ---------------
+    # Plot Boxplot with min and max value for year 2050
+    # ---------------
+    ax.boxplot(
+        national_peak_boxplot_data,
+        positions=[1,2,3,4],
+        widths=len(sim_yrs) * [1],
+        whis='range', #provide min and maximum
+        patch_artist=True ,
+        boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+        meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+        capprops=dict(linewidth=0.6, color=color, alpha=1.0),
+        whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+        flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+        medianprops=dict(linewidth=0, color=color, alpha=1.0))'''
+        
+    plt.xticks(range(0, len(scenarios) * 2, 2), scenarios)
+
+    plt.savefig(os.path.join(result_path, fig_name))
+    return
+
+

@@ -39,7 +39,7 @@ def my_function(simulation_number):
 
 # Simulation number
 #simulation_number = range(0, 101, 1)
-simulation_number = range(0, 5, 1)
+simulation_number = range(0, 3, 1)
 nr_of_pools = 3 #int(cpu_count()/2)
 
 if __name__ == "__main__":
