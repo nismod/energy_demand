@@ -54,7 +54,7 @@ def my_function(simulation_number):
     return 
 
 # WEather years
-simulation_number = range(10)
+simulation_number = range(3)
 
 if __name__ == "__main__":
     with Pool(int(cpu_count()/2)) as pool:

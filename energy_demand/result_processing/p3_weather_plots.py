@@ -1,8 +1,9 @@
 """Read in model results and plot results
 """
-import os
+import os, sys
 import pandas as pd
 import numpy as np
+sys.path.insert(0, "C:\HIRE\energy_demand")
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
@@ -366,7 +367,7 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final",
-    path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
+    scenarios_path="C:/HIRE/results",
+    path_shapefile_input="C:/HIRE/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])

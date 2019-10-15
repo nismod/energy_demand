@@ -7,6 +7,9 @@ Always execute from root folder and pass the path to the .ini file as argument:
     Examples
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max NF1 h_max
+
+    python C:/HIRE/energy_demand/energy_demand/main.py C:/HIRE/energy_demand/local_run_config_file.ini h_max NF1 h_max
+
 """
 import os
 import sys
@@ -24,7 +27,7 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
-raise Exception("TTes")
+
 def energy_demand_model(
         regions,
         data,
@@ -88,6 +91,7 @@ if __name__ == "__main__":
         path_config  = sys.argv[1]
     else:
         raise Exception("The defined .ini file does not exist_ {}".format(sys.argv[1]))
+
     config = data_loader.read_config_file(path_config)
 
     data = {}
@@ -118,7 +122,8 @@ if __name__ == "__main__":
     if config['CRITERIA']['cluster_calc']:
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
-        path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
+        #path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
+        path_weather_data = "C:/HIRE/_weather_realisation"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c'

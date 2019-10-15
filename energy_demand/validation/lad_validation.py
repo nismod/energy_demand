@@ -433,7 +433,7 @@ def spatio_temporal_val(
         model_yeardays_daytype)
 
     # Plot average daily loads
-    fig_load_profile_dh_multiple.run(
+    '''fig_load_profile_dh_multiple.run(
         path_fig_folder=result_paths['data_results_validation'],
         path_plot_fig=os.path.join(
             result_paths['data_results_validation'],
@@ -449,7 +449,7 @@ def spatio_temporal_val(
         plotshow=False,
         max_y_to_plot=60,
         fueltype_str=False,
-        year=False)
+        year=False)'''
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
