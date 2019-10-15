@@ -493,12 +493,17 @@ def fueltypes_over_time(
         figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
-    colors = {
+    '''colors = {
         # Low elec
-        'electricity':  '#3e3838',
-        'gas':          '#ae7c7c',
-        'hydrogen':     '#6cbbb3',
-    }
+        #'electricity':  '#3e3838',
+        #'gas':          '#ae7c7c',
+        #'hydrogen':     '#6cbbb3',
+
+        'electricity':  'black',
+        'gas':          'black',
+        'hydrogen':     'black',
+
+    }'''
 
     line_styles_default = plotting_styles.linestyles()
 
@@ -509,8 +514,12 @@ def fueltypes_over_time(
         'l_max': line_styles_default[9],
     }
 
+
+
     for cnt_scenario, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
+
+        color = colors[scenario_name]
 
         for cnt_linestyle, fueltype_str in enumerate(fueltypes):
             national_sum = i['national_{}'.format(fueltype_str)]
@@ -524,10 +533,10 @@ def fueltypes_over_time(
 
             national_sum = national_sum * unit_factor
 
-            try:
+            '''try:
                 color = colors[fueltype_str]
             except KeyError:
-                raise Exception("Wrong color")
+                raise Exception("Wrong color")'''
 
             try:
                 linestyle = linestyles[scenario_name]
@@ -571,6 +580,27 @@ def fueltypes_over_time(
                     pos_sigma = pos_sigma.values
                     neg_sigma = neg_sigma.values
             
+
+            # ---------------
+            # Plot Boxplot with min and max value
+            # ---------------
+            national_peak_boxplot_data = [np.array(national_sum[i]) for i in sim_yrs]
+
+            ax.boxplot(
+                national_peak_boxplot_data,
+                positions=sim_yrs,
+                widths=len(sim_yrs) * [1],
+                whis='range', #provide min and maximum
+                patch_artist=True ,
+                boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+                meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
+                capprops=dict(linewidth=0.6, color=color, alpha=1.0),
+                whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+                flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
+                medianprops=dict(linewidth=0, color=color, alpha=1.0),
+                zorder=2
+                )
+                
             # ------------------------
             # Plot lines
             # ------------------------
@@ -614,7 +644,7 @@ def fueltypes_over_time(
             # Shorten lines
             #pos_sigma = pos_sigma.loc[start_yr_uncertainty:]
             #neg_sigma = neg_sigma.loc[start_yr_uncertainty:]
-            pos_sigma = pos_sigma[pos_unc_yr:]
+            '''pos_sigma = pos_sigma[pos_unc_yr:]
             neg_sigma = neg_sigma[pos_unc_yr:]
 
             sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
@@ -628,7 +658,7 @@ def fueltypes_over_time(
                 list(pos_sigma),  #y1
                 list(neg_sigma),  #y2
                 alpha=0.25,
-                facecolor=color)
+                facecolor=color)'''
 
     plt.xlim(2015, 2050)
     plt.ylim(0)
@@ -731,8 +761,7 @@ def bar_plot_different_weather_scenarios(
 
         data_boxplot_same.append(np.array(data_same['national_peak'][2050]))
         data_boxplot_diff.append(np.array(data_diff['national_peak'][2050]))
-        
-        
+
         color = colors[data_same['scenario_name']]
 
 
@@ -779,6 +808,13 @@ def bar_plot_different_weather_scenarios(
         box.set(hatch = '..') # change hatch
             
     plt.xticks(range(0, len(scenarios) * 2, 2), scenarios)
+
+    legend = plt.legend(
+        ncol=1,
+        prop={'size': 6},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.1),
+        frameon=False)
 
     plt.savefig(os.path.join(result_path, fig_name))
     return

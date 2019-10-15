@@ -314,8 +314,30 @@ def main(
                     fig_3_plot_over_time.fueltypes_over_time(
                         scenario_result_container=scenario_result_container,
                         sim_yrs=data['assumptions']['sim_yrs'],
-                        fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
-                        fueltypes=['electricity', 'gas', 'hydrogen'],
+                        fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, 'electricity'),
+                        fueltypes=['electricity'], #, 'gas', 'hydrogen'],
+                        result_path=result_path,
+                        unit='TWh',
+                        plot_points=True,
+                        crit_smooth_line=crit_smooth_line,
+                        seperate_legend=seperate_legend)
+
+                    fig_3_plot_over_time.fueltypes_over_time(
+                        scenario_result_container=scenario_result_container,
+                        sim_yrs=data['assumptions']['sim_yrs'],
+                        fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, 'gas'),
+                        fueltypes=['gas'], #, '', 'hydrogen'],
+                        result_path=result_path,
+                        unit='TWh',
+                        plot_points=True,
+                        crit_smooth_line=crit_smooth_line,
+                        seperate_legend=seperate_legend)
+
+                    fig_3_plot_over_time.fueltypes_over_time(
+                        scenario_result_container=scenario_result_container,
+                        sim_yrs=data['assumptions']['sim_yrs'],
+                        fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, 'hydrogen'),
+                        fueltypes=['hydrogen'], #, 'gas', 'hydrogen'],
                         result_path=result_path,
                         unit='TWh',
                         plot_points=True,
@@ -409,7 +431,7 @@ def main(
 # Code to run charts generation for weather paper
 main(
     path_multiple_simulations="C:/HIRE/_result_figs_multiple_sim",
-    scenarios_paths=["C:/HIRE/results", "C:/HIRE/_same_weather_test"],
+    scenarios_paths=["C:/HIRE/_result_same_weather", "C:/HIRE/_result_different_weather"],
     path_shapefile_input="C:/HIRE/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])
