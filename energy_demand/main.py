@@ -10,6 +10,11 @@ Always execute from root folder and pass the path to the .ini file as argument:
 
     python C:/HIRE/energy_demand/energy_demand/main.py C:/HIRE/energy_demand/local_run_config_file.ini h_max NF1 h_max
 
+h_max: Carbon conflict
+h_min: Green Decarbonization
+l_max: Inefficient populous
+l_min: green Non-electric
+
 """
 import os
 import sys
@@ -19,6 +24,7 @@ from collections import defaultdict
 import pandas as pd
 
 sys.path.insert(0, "C:\HIRE\energy_demand")
+sys.path.insert(0, "J:/Sven/HIRE/energy_demand")
 
 from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
@@ -97,7 +103,7 @@ if __name__ == "__main__":
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    same_year_crit = True # If true, always weather data for 2020 is used.
+    same_year_crit = False # If true, always weather data for 2020 is used.
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -125,6 +131,7 @@ if __name__ == "__main__":
     else:
         #path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
         path_weather_data = "C:/HIRE/_weather_realisation"
+        #path_weather_data = "J:/Sven/HIRE/_weather_realisation"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c'

@@ -30,6 +30,7 @@ def my_function(simulation_number):
         pass
     else:
         bash_command = "python C:/HIRE/energy_demand/energy_demand/main.py {} {} {} {}".format(
+        #bash_command = "python J:/Sven/HIRE/energy_demand/energy_demand/main.py {} {} {} {}".format(
             path_to_ini_file,
             run_name,
             weather_realisation,
@@ -39,9 +40,9 @@ def my_function(simulation_number):
     return 
 
 # Simulation number
-#simulation_number = range(0, 101, 1)
-simulation_number = range(0, 3, 1)
-nr_of_pools = 3 #int(cpu_count()/2)
+simulation_number = range(0, 101, 1)
+
+nr_of_pools = 2 #int(cpu_count()/2)
 
 if __name__ == "__main__":
     with Pool(nr_of_pools) as pool:
