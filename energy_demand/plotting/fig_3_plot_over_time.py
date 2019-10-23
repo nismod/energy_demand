@@ -178,7 +178,7 @@ def scenario_over_time(
             widths=len(sim_yrs) * [1],
             whis='range', #provide min and maximum
             patch_artist=True ,
-            boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
+            boxprops=dict(linestyle='-', linewidth=0.25, color=color, facecolor=color, alpha=1.0),
             meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
             capprops=dict(linewidth=0.6, color=color, alpha=1.0),
             whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
@@ -204,11 +204,11 @@ def scenario_over_time(
             plt.scatter(
                 sim_yrs,
                 mean_national_peak_sim_yrs,
-                c=color,
+                c='black',
                 marker=marker,
                 edgecolor='black',
-                linewidth=0.5,
-                zorder=3,
+                linewidth=0.4,
+                zorder=20,
                 s=6,
                 clip_on=False) #do not clip points on axis
 
@@ -260,7 +260,7 @@ def scenario_over_time(
         '''
         
 
-    plt.xlim(2015, 2050)
+    plt.xlim(2015, 2050.6)
     plt.ylim(0)
 
     # --------
@@ -585,19 +585,19 @@ def fueltypes_over_time(
             # Plot Boxplot with min and max value
             # ---------------
             national_peak_boxplot_data = [np.array(national_sum[i]) for i in sim_yrs]
-
+            alpha_value = 1.0
             ax.boxplot(
                 national_peak_boxplot_data,
                 positions=sim_yrs,
                 widths=len(sim_yrs) * [1],
                 whis='range', #provide min and maximum
                 patch_artist=True ,
-                boxprops=dict(linestyle='-', linewidth=0.25, color='black', facecolor=color, alpha=1.0),
-                meanprops=dict(linestyle='--', linewidth=0, color='green', alpha=1.0),
-                capprops=dict(linewidth=0.6, color=color, alpha=1.0),
-                whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
-                flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=1.0),
-                medianprops=dict(linewidth=0, color=color, alpha=1.0),
+                boxprops=dict(linestyle='-', linewidth=0.25, color=color, facecolor=color, alpha=alpha_value),
+                meanprops=dict(linestyle='--', linewidth=0, color=color, alpha=alpha_value),
+                capprops=dict(linewidth=0.6, color=color, alpha=alpha_value),
+                whiskerprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=alpha_value),
+                flierprops=dict(linewidth=0.6, color=color, markeredgecolor=color, alpha=alpha_value),
+                medianprops=dict(linewidth=0, color=color, alpha=alpha_value),
                 zorder=2
                 )
                 
@@ -621,10 +621,10 @@ def fueltypes_over_time(
                     mean_national_sum_sim_yrs,
                     marker=marker,
                     edgecolor='black',
-                    linewidth=0.5,
-                    c=color,
-                    zorder=2,
-                    s=15,
+                    linewidth=0.4,
+                    c='black',
+                    zorder=20,
+                    s=6,
                     clip_on=False) #do not clip points on axis
 
             # ------------------
@@ -660,7 +660,7 @@ def fueltypes_over_time(
                 alpha=0.25,
                 facecolor=color)'''
 
-    plt.xlim(2015, 2050)
+    plt.xlim(2015, 2050.6)
     plt.ylim(0)
 
     ax = plt.gca()
@@ -774,18 +774,25 @@ def bar_plot_different_weather_scenarios(
 
         color = colors[data_same['scenario_name']]
 
-    # STats to print out
-    statistics_to_print.append("========== Same Weather ==============")
-    statistics_to_print.append(np.array(data_same['national_peak'][2050]))
-    statistics_to_print.append("Diff: {}".format(max(np.array(data_same['national_peak'][2050])) - min(np.array(data_same['national_peak'][2050]))))
-    statistics_to_print.append("Mean: {}".format(np.mean(data_same['national_peak'][2050])))
+        # STats to print out
+        statistics_to_print.append("########################### Scenario {} ###########################".format(data_same['scenario_name']))
+        statistics_to_print.append("========== Same Weather")
+        statistics_to_print.append(np.array(data_same['national_peak'][2050]))
+        statistics_to_print.append("Min: {}".format(min(np.array(data_same['national_peak'][2050]))))
+        statistics_to_print.append("Max: {}".format(max(np.array(data_same['national_peak'][2050]))))
+        statistics_to_print.append("Diff: {}".format(max(np.array(data_same['national_peak'][2050])) - min(np.array(data_same['national_peak'][2050]))))
+        statistics_to_print.append("Mean: {}".format(np.mean(data_same['national_peak'][2050])))
+        statistics_to_print.append("Median: {}".format(np.median(data_same['national_peak'][2050])))
 
-    statistics_to_print.append("========== Different Weather ==============")
-    statistics_to_print.append(np.array(data_diff['national_peak'][2050]))
-    statistics_to_print.append("Diff: {}".format(max(np.array(data_diff['national_peak'][2050])) - min(np.array(data_diff['national_peak'][2050]))))
-    statistics_to_print.append("Mean: {}".format(np.mean(data_diff['national_peak'][2050])))
+        statistics_to_print.append("========== Different Weather")
+        statistics_to_print.append(np.array(data_diff['national_peak'][2050]))
+        statistics_to_print.append("Min: {}".format(min(np.array(data_diff['national_peak'][2050]))))
+        statistics_to_print.append("Max: {}".format(max(np.array(data_diff['national_peak'][2050]))))
+        statistics_to_print.append("Diff: {}".format(max(np.array(data_diff['national_peak'][2050])) - min(np.array(data_diff['national_peak'][2050]))))
+        statistics_to_print.append("Mean: {}".format(np.mean(data_diff['national_peak'][2050])))
+        statistics_to_print.append("Median: {}".format(np.median(data_diff['national_peak'][2050])))
 
-    fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(19, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
     color_1 = '#377eb8' # orange
@@ -829,12 +836,19 @@ def bar_plot_different_weather_scenarios(
             
     plt.xticks(range(0, len(scenarios) * 2, 2), scenarios)
 
-    legend = plt.legend(
-        ncol=1,
-        prop={'size': 6},
-        loc='upper center',
-        bbox_to_anchor=(0.5, -0.1),
+    legend = ax.legend(
+        [bpl["boxes"][0], bpr["boxes"][0]], ['Current weather', 'Future weather'],
+        loc='upper right',
         frameon=False)
+
+    basic_plot_functions.export_legend(
+        legend,
+        os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
+
+
+    plt.ylabel("UK electrictiy peak demand (GW)")
+    plt.xlabel("Scenario")
+    plt.tight_layout()
 
     plt.savefig(os.path.join(result_path, fig_name))
 

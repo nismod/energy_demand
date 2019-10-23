@@ -29,7 +29,7 @@ from energy_demand import enduse_func
 
 # Folder paths
 path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store results
-path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final"
+path_results = "R:/Scratch/313/SE_scratch"
 
 # Scenario definitions
 all_scenarios = ['h_max']#, 'h_min', 'l_max', 'l_min']

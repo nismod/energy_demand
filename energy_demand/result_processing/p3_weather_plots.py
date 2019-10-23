@@ -301,10 +301,12 @@ def main(
             # ------------------------------
             # Plot national sum over time per fueltype and scenario
             # ------------------------------
+            crit_smooth_line = False
+            seperate_legend = True
+            plot_points = True
             if simulation_yr_to_plot == 2050: #TODO: ONLY PLOT ONCE FOR THE YEAR (as the same for every year)
-                crit_smooth_line = True
-                seperate_legend = True
 
+                
                 # Multi sim result storage
                 multi_sim_results[sim_name] = scenario_result_container
 
@@ -318,7 +320,7 @@ def main(
                         fueltypes=['electricity'], #, 'gas', 'hydrogen'],
                         result_path=result_path,
                         unit='TWh',
-                        plot_points=True,
+                        plot_points=plot_points,
                         crit_smooth_line=crit_smooth_line,
                         seperate_legend=seperate_legend)
 
@@ -329,7 +331,7 @@ def main(
                         fueltypes=['gas'], #, '', 'hydrogen'],
                         result_path=result_path,
                         unit='TWh',
-                        plot_points=True,
+                        plot_points=plot_points,
                         crit_smooth_line=crit_smooth_line,
                         seperate_legend=seperate_legend)
 
@@ -340,7 +342,7 @@ def main(
                         fueltypes=['hydrogen'], #, 'gas', 'hydrogen'],
                         result_path=result_path,
                         unit='TWh',
-                        plot_points=True,
+                        plot_points=plot_points,
                         crit_smooth_line=crit_smooth_line,
                         seperate_legend=seperate_legend)
                 except:
@@ -379,7 +381,8 @@ def main(
                 except:
                     raise Exception("FAILED")
                     pass
-
+            
+            if simulation_yr_to_plot == 2050 or simulation_yr_to_plot == 2030: 
                 # ------------------------------
                 # plot PEAK DAY mean
                 # ------------------------------
@@ -423,15 +426,30 @@ def main(
     # -------------
     fig_3_plot_over_time.bar_plot_different_weather_scenarios(
         data=multi_sim_results,
-        weather_scenario_same_weather='_result_same_weather',
-        weather_scenario_different='_result_different_weather',
-        fig_name="weather_comparison_2020_scenario.pdf",
+        weather_scenario_same_weather=scenarios_paths[0],
+        weather_scenario_different=scenarios_paths[1],
+        fig_name="weather_comparison_2050_scenario.pdf",
         result_path=path_multiple_simulations)
     
 # Code to run charts generation for weather paper
+# First same and then diff!!!
+'''
 main(
-    path_multiple_simulations="C:/HIRE/_result_figs_multiple_sim",
-    scenarios_paths=["C:/HIRE/_result_same_weather", "C:/HIRE/_result_different_weather"],
+    path_multiple_simulations="R:/Scratch/313/SE_scratch/_figs_weather_comparison",
+    scenarios_paths=[
+        "R:/Scratch/313/SE_scratch/_result_same_weather_full_simulation",
+        "R:/Scratch/313/SE_scratch/_result_diff_weatehr_full_simulation"],
     path_shapefile_input="C:/HIRE/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])
+
+'''
+main(
+    path_multiple_simulations="C:/_figs_weather_comparison",
+    scenarios_paths=[
+        "C:\HIRE\_result_DIFFERENT_FULL_SIMULATION",
+        "C:\HIRE\_result_DIFFERENT_FULL_SIMULATION2"],
+    path_shapefile_input="C:/HIRE/data/region_definitions/lad_2016_uk_simplified.shp",
+    base_yr=2015,
+    simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])
+

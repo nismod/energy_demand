@@ -5,7 +5,7 @@ from multiprocessing import Pool, cpu_count
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
-    run_name = 'h_max' #h_min, h_max, l_max, l_min
+    run_name = 'h_min' #h_min, h_max, l_max, l_min
     name_config_path = run_name
 
     run_smif = False 
@@ -40,9 +40,9 @@ def my_function(simulation_number):
     return 
 
 # Simulation number
-simulation_number = range(0, 101, 1)
+simulation_number = [55]
 
-nr_of_pools = 2 #int(cpu_count()/2)
+nr_of_pools = 1 #int(cpu_count()/2)
 
 if __name__ == "__main__":
     with Pool(nr_of_pools) as pool:
