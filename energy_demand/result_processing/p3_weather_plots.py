@@ -63,8 +63,9 @@ def main(
         basic_functions.del_previous_setup(result_path)
         basic_functions.create_folder(result_path)
 
-        sim_name = scenarios_path.split("/")[-1]
-
+        #sim_name = scenarios_path.split("/")[-1]
+        sim_name = scenarios_path
+    
         x_chart_yrs_storage = {}
 
         for simulation_yr_to_plot in simulation_yrs_to_plot:
@@ -88,8 +89,6 @@ def main(
                 '.ini']
 
             # Simulation Result Folders simulations
-
-
             all_scenarios_incl_ignored = os.listdir(scenarios_path)
             all_scenarios = []
             for scenario in all_scenarios_incl_ignored:
@@ -305,11 +304,9 @@ def main(
             seperate_legend = True
             plot_points = True
             if simulation_yr_to_plot == 2050: #TODO: ONLY PLOT ONCE FOR THE YEAR (as the same for every year)
-
                 
                 # Multi sim result storage
                 multi_sim_results[sim_name] = scenario_result_container
-
 
                 try:
                     print("... plotting national sum of fueltype over time ")
@@ -433,7 +430,7 @@ def main(
     
 # Code to run charts generation for weather paper
 # First same and then diff!!!
-'''
+
 main(
     path_multiple_simulations="R:/Scratch/313/SE_scratch/_figs_weather_comparison",
     scenarios_paths=[
@@ -452,4 +449,4 @@ main(
     path_shapefile_input="C:/HIRE/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])
-
+'''
