@@ -351,6 +351,9 @@ def simulate_region(
         sectors=data['sectors'],
         crit_temp_min_max=criterias['crit_temp_min_max'])
 
+    #REVIEW1: NEW STUFF
+    # Get self.rs_cdd_cy and write out
+
     # Get region specific disaggregated fuel
     region_fuel_disagg = get_disaggregated_fuel_of_reg(
         submodel_names, data['fuel_disagg'], region)
