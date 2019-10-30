@@ -72,7 +72,8 @@ def energy_demand_model(
     """
     logging.info("... Number of modelled regions: %s", len(regions))
 
-    modelrun = model.EnergyDemandModel(
+    #modelrun = model.EnergyDemandModel(
+    model.EnergyDemandModel(
         weather_realisation,
         regions=regions,
         data=data,
@@ -82,14 +83,15 @@ def energy_demand_model(
         weather_yr=weather_yr,
         weather_by=weather_by)
 
-    # Calculate base year demand
+    '''# Calculate base year demand
     fuels_in = testing_functions.test_function_fuel_sum(
         data, data['fuel_disagg'], criterias['mode_constrained'], assumptions.enduse_space_heating)
 
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
 
-    return modelrun
+    return modelrun'''
+    return 1
 
 if __name__ == "__main__":
     """
@@ -103,9 +105,9 @@ if __name__ == "__main__":
     config = data_loader.read_config_file(path_config)
 
     data = {}
-    sim_yrs = [2015, 2020] #, 2025, 2030, 2035, 2040, 2045, 2050]
+    sim_yrs = [2015, 2020, 2050] #, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    same_year_crit = True # If true, always weather data for 2020 is used.
+    same_year_crit = False # If true, always weather data for 2020 is used.
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -467,7 +469,7 @@ if __name__ == "__main__":
             data['weather_stations'],
             weather_yr=weather_yr_scenario,
             weather_by=data['assumptions'].weather_by)
-
+        '''
         # ------------------------------------------------
         # Temporal Validation
         # ------------------------------------------------
@@ -580,7 +582,7 @@ if __name__ == "__main__":
                     'reg_load_factor_yd')
 
             print("... Finished writing results to file")
-
+        '''
     print("-------------------------")
     print("... Finished running HIRE")
     print("-------------------------")

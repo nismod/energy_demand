@@ -126,12 +126,13 @@ class EnergyDemandModel(object):
         #np.savetxt("C:/HIRE/_results_hdd_cdd/diff_weather/cdd_sum_{}.txt".format(weather_realisation), cdd_array)
 
         #with open("C:/HIRE/_results_hdd_cdd/diff_weather/hdd_sum_{}.txt".format(weather_realisation), 'w') as filehandle:
-        with open("C:/HIRE/_results_hdd_cdd/same_weather/hdd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
+        with open("C:/HIRE/_results_hdd_cdd/diff_weather/hdd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
             filehandle.write(str(hdd_sum))
         
         #with open("C:/HIRE/_results_hdd_cdd/diff_weather/ccd_sum_{}.txt".format(weather_realisation), 'w') as filehandle:
-        with open("C:/HIRE/_results_hdd_cdd/same_weather/ccd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
+        with open("C:/HIRE/_results_hdd_cdd/diff_weather/ccd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
             filehandle.write(str(cdd_sum))
+
         '''
         # ------------------------------------------
         # Simulate regions
@@ -183,6 +184,7 @@ class EnergyDemandModel(object):
         for key_attribute_name, value in aggr_results.items():
             setattr(self, key_attribute_name, value)
         '''
+
 
 def aggregate_across_all_regs(
         aggr_results,

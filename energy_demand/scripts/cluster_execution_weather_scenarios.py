@@ -40,7 +40,7 @@ def my_function(simulation_number):
     return 
 
 # Simulation number
-simulation_number = range(0, 101, 1)
+simulation_number = range(80, 91, 1)
 
 nr_of_pools = 2 #int(cpu_count()/2)
 
