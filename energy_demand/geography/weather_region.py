@@ -135,8 +135,9 @@ class WeatherRegion(object):
         # --------Calculate HDD/CDD of base year weather year
         #self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
         #    temp_by, assumptions.t_bases.rs_t_cooling_by, assumptions.model_yeardays)
-        #self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
-        #    temp_cy, rs_t_base_cooling_cy, assumptions.model_yeardays)
+        is_t_base_cooling_cy = 15.5
+        self.is_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
+            temp_cy, is_t_base_cooling_cy, assumptions.model_yeardays, crit_temp_min_max)
 
         # -------Calculate climate change correction factors
         try:

@@ -35,6 +35,7 @@ from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregati
 from energy_demand.plotting import fig_enduse_yh
 
 def energy_demand_model(
+        weather_realisation,
         regions,
         data,
         criterias,
@@ -72,6 +73,7 @@ def energy_demand_model(
     logging.info("... Number of modelled regions: %s", len(regions))
 
     modelrun = model.EnergyDemandModel(
+        weather_realisation,
         regions=regions,
         data=data,
         criterias=criterias,
@@ -101,9 +103,9 @@ if __name__ == "__main__":
     config = data_loader.read_config_file(path_config)
 
     data = {}
-    sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    sim_yrs = [2015, 2020] #, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    same_year_crit = False # If true, always weather data for 2020 is used.
+    same_year_crit = True # If true, always weather data for 2020 is used.
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -457,6 +459,7 @@ if __name__ == "__main__":
         # Run model
         # -------------------------------------------
         sim_obj = energy_demand_model(
+            weather_realisation,
             region_selection,
             data,
             config['CRITERIA'],

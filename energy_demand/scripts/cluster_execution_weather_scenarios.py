@@ -40,9 +40,9 @@ def my_function(simulation_number):
     return 
 
 # Simulation number
-simulation_number = [55]
+simulation_number = range(0, 101, 1)
 
-nr_of_pools = 1 #int(cpu_count()/2)
+nr_of_pools = 2 #int(cpu_count()/2)
 
 if __name__ == "__main__":
     with Pool(nr_of_pools) as pool:

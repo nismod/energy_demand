@@ -62,6 +62,7 @@ class EnergyDemandModel(object):
     """
     def __init__(
             self,
+            weather_realisation,
             regions,
             data,
             criterias,
@@ -100,6 +101,39 @@ class EnergyDemandModel(object):
             assumptions.nr_of_submodels)
 
         # -------------------------------------------
+        # REVIEW 1 HDD, CDD Simulate regions
+        # -------------------------------------------
+        hdd_array = np.zeros((len(regions), 365))
+        cdd_array = np.zeros((len(regions), 365))
+        for cnt, region in enumerate(regions):
+            hdd, cdd = collect_hdd_cdd(
+                    region,
+                    data,
+                    criterias,
+                    assumptions,
+                    weather_stations,
+                    weather_yr,
+                    weather_by)
+            # Current year
+            hdd_array[cnt] = hdd
+            cdd_array[cnt] = cdd #Is base temperure of 15.5 is used
+
+        # Calc annual average sum across all weather stations
+        hdd_sum = np.sum(hdd_array) / len(regions)
+        cdd_sum = np.sum(cdd_array) / len(regions)
+
+        #np.savetxt("C:/HIRE/_results_hdd_cdd/diff_weather/hdd_sum_{}.txt".format(weather_realisation), hdd_array)
+        #np.savetxt("C:/HIRE/_results_hdd_cdd/diff_weather/cdd_sum_{}.txt".format(weather_realisation), cdd_array)
+
+        #with open("C:/HIRE/_results_hdd_cdd/diff_weather/hdd_sum_{}.txt".format(weather_realisation), 'w') as filehandle:
+        with open("C:/HIRE/_results_hdd_cdd/same_weather/hdd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
+            filehandle.write(str(hdd_sum))
+        
+        #with open("C:/HIRE/_results_hdd_cdd/diff_weather/ccd_sum_{}.txt".format(weather_realisation), 'w') as filehandle:
+        with open("C:/HIRE/_results_hdd_cdd/same_weather/ccd_sum_{}_year_{}.txt".format(weather_realisation, weather_yr), 'w') as filehandle:
+            filehandle.write(str(cdd_sum))
+        '''
+        # ------------------------------------------
         # Simulate regions
         # -------------------------------------------
         #_all_closest_weather_stations = []
@@ -148,6 +182,7 @@ class EnergyDemandModel(object):
         # Set all keys of aggr_results as self.attributes
         for key_attribute_name, value in aggr_results.items():
             setattr(self, key_attribute_name, value)
+        '''
 
 def aggregate_across_all_regs(
         aggr_results,
@@ -304,6 +339,41 @@ def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
 
     return region_fuel_disagg
 
+def collect_hdd_cdd(
+        region,
+        data,
+        criterias,
+        assumptions,
+        weather_stations,
+        weather_yr,
+        weather_by
+    ):
+    
+    # Get closest weather region object
+    weather_region_id = weather_station_location.get_closest_station(
+        latitude_reg=data['reg_coord'][region]['latitude'],
+        longitude_reg=data['reg_coord'][region]['longitude'],
+        weather_stations=weather_stations)
+
+    weather_region_cy = WeatherRegion(
+        name=weather_region_id,
+        latitude=weather_stations[weather_region_id]['latitude'],
+        longitude=weather_stations[weather_region_id]['longitude'],
+        assumptions=assumptions,
+        technologies=assumptions.technologies,
+        enduses=data['enduses'],
+        temp_by=data['temp_data'][weather_by][weather_region_id],
+        temp_cy=data['temp_data'][weather_yr][weather_region_id],
+        tech_lp=data['tech_lp'],
+        sectors=data['sectors'],
+        crit_temp_min_max=criterias['crit_temp_min_max'])
+
+    #REVIEW1: NEW STUFF
+    hdd = weather_region_cy.rs_hdd_cy
+    cdd = weather_region_cy.is_cdd_cy
+
+    return hdd, cdd
+
 def simulate_region(
         region,
         data,
@@ -350,9 +420,6 @@ def simulate_region(
         tech_lp=data['tech_lp'],
         sectors=data['sectors'],
         crit_temp_min_max=criterias['crit_temp_min_max'])
-
-    #REVIEW1: NEW STUFF
-    # Get self.rs_cdd_cy and write out
 
     # Get region specific disaggregated fuel
     region_fuel_disagg = get_disaggregated_fuel_of_reg(
