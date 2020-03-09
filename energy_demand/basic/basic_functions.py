@@ -3,7 +3,7 @@
 import os
 import shutil
 import numpy as np
-from pyproj import Proj, transform
+from pyproj import CRS, Transformer
 
 def get_result_paths(folder_path):
     """Joins results subfolders to ``folder_path`` and returns a dict
@@ -137,17 +137,17 @@ def get_long_lat_decimal_degrees(reg_centroids):
     http://spatialreference.org/ref/epsg/wgs-84/
     """
     reg_coord = {}
+
+    crs_4326 = CRS.from_epsg(4326) # WGS 84 projection
+    crs_27700 = CRS.from_epsg(27700) # OSGB_1936_British_National_Grid
+    t = Transformer.from_crs(crs_27700, crs_4326)
+
     for centroid in reg_centroids:
-        in_projection = Proj(init="epsg:27700") # OSGB_1936_British_National_Grid
-        put_projection = Proj(init="epsg:4326") # WGS 84 projection
-
         # Convert to decimal degrees
-        long_dd, lat_dd = transform(
-            in_projection,
-            put_projection,
-            centroid['geometry']['coordinates'][0], #longitude
-            centroid['geometry']['coordinates'][1]) #latitude
-
+        long_dd, lat_dd = t.transform(
+            centroid['geometry']['coordinates'][0],
+            centroid['geometry']['coordinates'][1]
+        )
         reg_coord[centroid['properties']['name']] = {}
         reg_coord[centroid['properties']['name']]['latitude'] = lat_dd
         reg_coord[centroid['properties']['name']]['longitude'] = long_dd
