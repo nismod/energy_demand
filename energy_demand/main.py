@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     # Load standard strategy variable values from .py file
     # Containing full information
-    # -----------------------------------------------------------------------------        
+    # -----------------------------------------------------------------------------
     default_streategy_vars = strategy_vars_def.load_param_assump(
         default_values=True)
 
@@ -243,19 +243,32 @@ if __name__ == "__main__":
     data['assumptions'].technologies.update(technologies)
 
     if config['CRITERIA']['virtual_building_stock_criteria']:
-        data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
+        (
+            rs_floorarea,
+            ss_floorarea,
+            service_building_count,
+            rs_regions_without_floorarea,
+            ss_regions_without_floorarea
+        ) = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors'],
             data['local_paths'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
-            data['assumptions'].base_yr)
+            data['assumptions'].base_yr
+        )
+
+        data['scenario_data']['floor_area']['rs_floorarea'] = rs_floorarea
+        data['scenario_data']['floor_area']['ss_floorarea'] = ss_floorarea
+        data['service_building_count'] = service_building_count
 
         # Add all areas with no floor area data
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
     else:
-        #TODO READ IN RESIDENTIAL AND NON RESIDENTIAL FLOOR AREA, Service_buidling
-        pass
+        # Not (yet?) handled in this runner
+        raise NotImplementedError(
+            "Expected virtual_building_stock_criteria to be True, " \
+            "loading floor area not implemented")
 
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("-----------------------------------------------")
@@ -502,7 +515,7 @@ if __name__ == "__main__":
             # Write annual results to txt files
             # -------------------------------------------
             print("... Start writing results to file: " + str(data['weather_yr_result_paths']['data_results_model_run_results_txt']))
-            plot_only_selection = True 
+            plot_only_selection = True
             if plot_only_selection:
 
                 # Write only total region
