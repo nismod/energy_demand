@@ -64,13 +64,17 @@ def constrained_results(
     # ----------------------------------------
     for submodel_nr, submodel in enumerate(submodels_names):
         for tech, fuel_tech in results_constrained.items():
-            # Technological simplifications because of different technology definition and because not all technologies are used in supply model
+            # Technological simplifications because of different technology
+            # definition and because not all technologies are used in supply model
             tech_simplified = model_tech_simplification(tech)
             fueltype_str = technologies[tech_simplified].fueltype_str
             fueltype_int = technologies[tech_simplified].fueltype_int
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
-            supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
+            if key_name not in supply_results:
+                supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
+            else:
+                supply_results[key_name] += fuel_tech[submodel_nr][:, fueltype_int, :]
 
     assert not testing_functions.test_if_minus_value_in_array(results_unconstrained_no_heating)
 
