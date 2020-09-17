@@ -31,13 +31,13 @@ More information on the model can be found in:
 ----------------------
 
 Most data for running HIRE are freely available online. For some input data it is necessary to request access.
-For more information on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
+For more information on all necessary input datasets see `HIRE docs <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
 
-All necessary input data to run HIRE can be downloaded (`here <TODO_DATA_LINK>`_), where
+All necessary input data to run HIRE can be downloaded, where
 for the restricted datasets a dummy input dataset is used instead.
 
 For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium <https://www.itrc.org.uk/contact-us/>`_).
-Also check whether data area available `here <https://www.nismod.ac.uk>`_.
+Also check whether data area available from `NISMOD <https://www.nismod.ac.uk>`_.
 
 2. Initialising and running the model (local)
 ---------------------------------------------
@@ -110,15 +110,12 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
 
-2. Install and set-up smif (see instructions `here <https://github.com/nismod/smif>`_)
+2. Install and set-up smif (see `smif instructions <https://github.com/nismod/smif>`_)
 
 3. pip install ``energy_demand``
 
 4. Run the energy demand model for a scenario with
    the command: ``smif run NAME_SCENARIO``
-
-   For an overview of all possible scenario and their explanation,
-   see here `here <https://LINKTOBEDFINED.htm>`_
 
    To change the logger level of an individual sector model with smif, type:
 
