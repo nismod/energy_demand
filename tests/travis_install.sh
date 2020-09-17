@@ -54,9 +54,7 @@ if [[ "$DISTRIB" == "conda" ]]; then
     source activate testenv
 fi
 
-if [[ "$COVERAGE" == "true" ]]; then
-    pip install coverage coveralls
-fi
+pip install coverage coveralls
 
 # Link code to python environment
 # install any packages as specified in install_requires
