@@ -1,12 +1,11 @@
-.. _readme:
-
 HIgh-Resolution Energy demand model (HIRE)
-====================================
+==========================================
+
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
+.. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master
     :target: https://travis-ci.org/nismod/energy_demand
 
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg?branch=master
@@ -29,7 +28,8 @@ More information on the model can be found in:
 
 
 1. Download input data
--------------------------------------
+----------------------
+
 Most data for running HIRE are freely available online. For some input data it is necessary to request access.
 For more information on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
 
@@ -40,13 +40,14 @@ For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium 
 Also check whether data area available `here <https://www.nismod.ac.uk>`_.
 
 2. Initialising and running the model (local)
--------------------------------------
+---------------------------------------------
+
 The recommended installation method is to use `conda <http://conda.pydata.org/miniconda.html>`_,
-which handles packages and virtual environments. First, create a conda environment
+which handles packages and virtual environments. First, create a conda environment::
 
     conda create --name energy_demand python=3.6
 
-and activate it
+and activate it::
 
     activate energy_demand
 
@@ -65,7 +66,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 3.  Navigate to the folder where the python code is saved. Open a command and type into
     a command line (in a virtual environment):
- 
+
     ``python setup.py develop``
 
 4.  Install HIRE from within the console with the command
@@ -75,12 +76,12 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary data to run the model.
 
-    Note: The ``setup`` command generates new subfolders in the 
+    Note: The ``setup`` command generates new subfolders in the
     ``energy_data_folder``.
 
 
 2.2 Alternative Model Set-Up (with restricted dummy data)
----------------------------------------------
+---------------------------------------------------------
 
 1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
@@ -101,11 +102,11 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary minimum dummy data to run the model.
 
-    Note: The ``minimal_setup`` command generates new folders in the 
+    Note: The ``minimal_setup`` command generates new folders in the
     ``energy_data_folder``.
 
 3. Running HIRE with smif
----------------------------------------------
+-------------------------
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
 
@@ -113,18 +114,19 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 3. pip install ``energy_demand``
 
-4. Run the energy demand model for a scenario with 
+4. Run the energy demand model for a scenario with
    the command: ``smif run NAME_SCENARIO``
 
    For an overview of all possible scenario and their explanation,
    see here `here <https://LINKTOBEDFINED.htm>`_
 
-    To change the logger level of an individual sector model with smif, type:
+   To change the logger level of an individual sector model with smif, type:
 
-    ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
+   ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
 
 4. Generating plots based from simulation results
----
+-------------------------------------------------
+
 Every time a model gets run, the specific model simulation results
 are stored in the result folder named after the timestamp of the model execution.
 
