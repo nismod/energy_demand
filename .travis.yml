@@ -2,8 +2,8 @@ sudo: false
 language: python
 env:
   matrix:
-    - DISTRIB="conda" PYTHON_VERSION="3.6" COVERAGE="false"
-    - DISTRIB="conda" PYTHON_VERSION="3.7" COVERAGE="true"
+    - PYTHON_VERSION="3.6" COVERAGE="false"
+    - PYTHON_VERSION="3.7" COVERAGE="true"
 install: source tests/travis_install.sh
 before_script:
   - git config --global user.email "sven.eggimann@ouce.ox.ac.uk"
@@ -11,10 +11,8 @@ before_script:
 script: coverage run --source=energy_demand setup.py test
 after_success:
   - if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi
-
 notifications:
   email: false
-
 
 jobs:
   include:
