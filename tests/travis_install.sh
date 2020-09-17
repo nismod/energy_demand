@@ -31,30 +31,27 @@ if [[ "$DISTRIB" == "conda" ]]; then
     # Don't change prompt
     conda config --set changeps1 false
 
-
-    if [[ "$PYTHON_VERSION" != "3.5" ]]; then
-        # Add conda-forge as priority channel
-        # conda-forge builds packages for Python 3.6 and above as of 2018-10-01
-        conda config --add channels conda-forge
-    fi
+    # Add conda-forge as priority channel
+    conda config --add channels conda-forge
 
     # Configure the conda environment using package names (using .environment.yml would force
     # the python version)
-
     conda create -n testenv \
         python=$PYTHON_VERSION \
         fiona \
+        geopandas \
+        haversine \
         imageio \
         matplotlib \
         numpy \
-        pytest   \
-        pytest-cov  \
+        palettable \
+        pandas \
+        pyproj \
+        pytest \
+        pytest-cov \
         scipy
-    # skip geopandas, pyproj, palettable and haversine from conda install (add fiona) in order
-    # to work on defaults channel for python 3.5
 
     source activate testenv
-
 fi
 
 if [[ "$COVERAGE" == "true" ]]; then
