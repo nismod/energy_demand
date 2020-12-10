@@ -97,10 +97,10 @@ def read_raw_carbon_trust_data(folder_path):
             if count_row > 365: # if more than one year is in csv file
 
                 for day, row in enumerate(row_data):
+                    # Ignore and entries beyond the expected 48 half-hourly entries (plus one date)
                     if len(row) != 49:
                         logging.debug(f"Expected 49 cells in row {day} got {len(row)}: {row} in {path_csv_file}")
-                        # row = row[:49]
-                        continue
+                        row = row[:49]
 
                     # Use only data of one year
                     if day > 365:
