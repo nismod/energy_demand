@@ -85,13 +85,12 @@ def read_raw_carbon_trust_data(folder_path):
         # Read csv file
         with open(path_csv_file, 'r') as csv_file:
             read_lines = csv.reader(csv_file, delimiter=',')
-            _headings = next(read_lines)
+            _ = next(read_lines)
             max_d_demand = 0 # Used for searching maximum
 
             # Count number of lines in CSV file
-            row_data = []
-            for count_row, row in enumerate(read_lines):
-                row_data.append(row)
+            row_data = list(read_lines)
+            count_row = len(row_data)
             #print("Number of lines in csv file: " + str(count_row))
 
             # Calc yearly demand based on one year data measurements
