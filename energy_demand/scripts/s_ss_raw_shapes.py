@@ -87,6 +87,7 @@ def read_raw_carbon_trust_data(folder_path):
             read_lines = csv.reader(csv_file, delimiter=',')
             _ = next(read_lines)
             max_d_demand = 0 # Used for searching maximum
+            max_dh_shape = np.zeros((24), dtype="float")
 
             # Count number of lines in CSV file
             row_data = list(read_lines)
