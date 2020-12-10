@@ -1,9 +1,10 @@
 """File to read in all service sector related data
 """
-import os
-import sys
 import csv
+import os
+import logging
 from datetime import date
+
 import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import write_data
@@ -79,6 +80,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Itreatu folder with csv files
     for path_csv_file in all_csv_in_folder:
         path_csv_file = os.path.join(folder_path, path_csv_file)
+        print(f"Reading {path_csv_file}")
 
         # Read csv file
         with open(path_csv_file, 'r') as csv_file:
@@ -94,12 +96,12 @@ def read_raw_carbon_trust_data(folder_path):
 
             # Calc yearly demand based on one year data measurements
             if count_row > 365: # if more than one year is in csv file
-                #print("FILE covers a full year---------------------------")
 
-                # Test if file has correct form and not more entries than 48 half-hourly entries
                 for day, row in enumerate(row_data):
                     if len(row) != 49:
-                        continue # Skip row
+                        logging.debug(f"Expected 49 cells in row {day} got {len(row)}: {row} in {path_csv_file}")
+                        # row = row[:49]
+                        continue
 
                     # Use only data of one year
                     if day > 365:
@@ -161,7 +163,7 @@ def read_raw_carbon_trust_data(folder_path):
                         max_dh_shape = load_shape_dh
 
                     # Check if 100 %
-                    np.testing.assert_almost_equal(control_sum, daily_sum, decimal=7, err_msg="")
+                    np.testing.assert_almost_equal(control_sum, daily_sum, decimal=7, err_msg=f"Row sum failed {day}: {row} in {path_csv_file}")
 
                 # Add load shape of maximum day in csv file
                 dict_max_dh_shape[path_csv_file] = max_dh_shape
