@@ -108,7 +108,19 @@ def read_raw_carbon_trust_data(folder_path):
 
                     load_shape_dh = np.zeros((24), dtype="float")
 
-                    row[1:] = map(float, row[1:]) # Convert all values except date into float values
+                    # Convert all values except date into float values
+                    try:
+                        # Take zero if any value is negative
+                        row[1:] = map(lambda c: max(float(c),0), row[1:])
+                    except ValueError:
+                        # Handle empty cells - assume zero if empty
+                        def convert_empty(cell):
+                            if cell == '':
+                                return 0
+                            else:
+                                return max(float(cell), 0)
+                        row[1:] = map(convert_empty, row[1:])
+
                     daily_sum = sum(row[1:]) # Total daily sum
                     nr_of_line_entries += 1 # Nr of lines added
                     day = int(row[0].split("/")[0])
@@ -136,7 +148,7 @@ def read_raw_carbon_trust_data(folder_path):
                         cnt += 1
                         if cnt == 2:
                             demand_h = first_data_h + data_h
-                            control_sum += abs(demand_h)
+                            control_sum += demand_h
 
                             # Add demand
                             carbon_trust_raw[yearday_python][h_day].append(demand_h)
