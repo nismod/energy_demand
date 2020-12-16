@@ -1,9 +1,10 @@
 """File to read in all service sector related data
 """
-import os
-import sys
 import csv
+import os
+import logging
 from datetime import date
+
 import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import write_data
@@ -79,27 +80,28 @@ def read_raw_carbon_trust_data(folder_path):
     # Itreatu folder with csv files
     for path_csv_file in all_csv_in_folder:
         path_csv_file = os.path.join(folder_path, path_csv_file)
+        print(f"Reading {path_csv_file}")
 
         # Read csv file
         with open(path_csv_file, 'r') as csv_file:
             read_lines = csv.reader(csv_file, delimiter=',')
-            _headings = next(read_lines)
+            _ = next(read_lines)
             max_d_demand = 0 # Used for searching maximum
+            max_dh_shape = np.zeros((24), dtype="float")
 
             # Count number of lines in CSV file
-            row_data = []
-            for count_row, row in enumerate(read_lines):
-                row_data.append(row)
+            row_data = list(read_lines)
+            count_row = len(row_data)
             #print("Number of lines in csv file: " + str(count_row))
 
             # Calc yearly demand based on one year data measurements
             if count_row > 365: # if more than one year is in csv file
-                #print("FILE covers a full year---------------------------")
 
-                # Test if file has correct form and not more entries than 48 half-hourly entries
                 for day, row in enumerate(row_data):
+                    # Ignore and entries beyond the expected 48 half-hourly entries (plus one date)
                     if len(row) != 49:
-                        continue # Skip row
+                        logging.debug(f"Expected 49 cells in row {day} got {len(row)}: {row} in {path_csv_file}")
+                        row = row[:49]
 
                     # Use only data of one year
                     if day > 365:
@@ -107,7 +109,19 @@ def read_raw_carbon_trust_data(folder_path):
 
                     load_shape_dh = np.zeros((24), dtype="float")
 
-                    row[1:] = map(float, row[1:]) # Convert all values except date into float values
+                    # Convert all values except date into float values
+                    try:
+                        # Take zero if any value is negative
+                        row[1:] = map(lambda c: max(float(c),0), row[1:])
+                    except ValueError:
+                        # Handle empty cells - assume zero if empty
+                        def convert_empty(cell):
+                            if cell == '':
+                                return 0
+                            else:
+                                return max(float(cell), 0)
+                        row[1:] = map(convert_empty, row[1:])
+
                     daily_sum = sum(row[1:]) # Total daily sum
                     nr_of_line_entries += 1 # Nr of lines added
                     day = int(row[0].split("/")[0])
@@ -135,7 +149,7 @@ def read_raw_carbon_trust_data(folder_path):
                         cnt += 1
                         if cnt == 2:
                             demand_h = first_data_h + data_h
-                            control_sum += abs(demand_h)
+                            control_sum += demand_h
 
                             # Add demand
                             carbon_trust_raw[yearday_python][h_day].append(demand_h)
@@ -161,7 +175,7 @@ def read_raw_carbon_trust_data(folder_path):
                         max_dh_shape = load_shape_dh
 
                     # Check if 100 %
-                    np.testing.assert_almost_equal(control_sum, daily_sum, decimal=7, err_msg="")
+                    np.testing.assert_almost_equal(control_sum, daily_sum, decimal=7, err_msg=f"Row sum failed {day}: {row} in {path_csv_file}")
 
                 # Add load shape of maximum day in csv file
                 dict_max_dh_shape[path_csv_file] = max_dh_shape

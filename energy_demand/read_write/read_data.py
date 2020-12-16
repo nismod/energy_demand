@@ -556,7 +556,8 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
         raise Exception(
             "The service sector fuel could not be loaded. Check if empty cells.")
 
-    return fuels, list(sectors), list(enduses)
+    return fuels, sorted(sectors), sorted(enduses)
+
 
 def read_load_shapes_tech(path_to_csv):
     """This function reads in csv technology shapes
