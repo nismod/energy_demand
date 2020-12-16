@@ -6,7 +6,7 @@ HIgh-Resolution Energy demand model (HIRE)
     :alt: Documentation Status
 
 .. image:: https://travis-ci.com/nismod/energy_demand.svg?branch=master
-    :target: https://travis-ci.com/nismod/energy_demandd
+    :target: https://travis-ci.com/nismod/energy_demand
 
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg?branch=master
     :target: https://coveralls.io/github/nismod/energy_demand?branch=master
